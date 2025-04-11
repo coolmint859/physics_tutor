@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class StateManager {
+public class ContextManager {
     private final Graphics2D graphics;
     private final SoundAssets sounds;
 
@@ -18,7 +18,7 @@ public class StateManager {
     StateEnum nextStateEnum = StateEnum.MainMenu;
     StateEnum prevStateEnum = StateEnum.MainMenu;
 
-    public StateManager(Graphics2D graphics) {
+    public ContextManager(Graphics2D graphics) {
         this.graphics = graphics;
 
         this.sounds = new SoundAssets();

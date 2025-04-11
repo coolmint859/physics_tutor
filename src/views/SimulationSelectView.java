@@ -13,14 +13,13 @@ import utils.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.lwjgl.glfw.GLFW.GLFW_ARROW_CURSOR;
-import static org.lwjgl.glfw.GLFW.GLFW_HAND_CURSOR;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class SimulationSelectView implements StateView {
     private final Graphics2D graphics;
     private final SoundAssets sounds;
 
-    private final float maxTimeOut = 0.001f; // the amount of time that input is disabled (prevents premature selections)
+    private final float maxTimeOut = 0.1f; // the amount of time that input is disabled (prevents premature selections)
     private float timeoutElapsed;
 
     private KeyboardInput keyboard;
@@ -30,7 +29,7 @@ public class SimulationSelectView implements StateView {
     private final SimulationView simulationView;
     private HashMap<String, Simulation> simulationMapping;
     private ArrayList<Text> simulationsNames;
-    private String selectedOption;
+    private final String escapeText = "Main Menu";
 
     private StateEnum nextState;
 
@@ -45,17 +44,17 @@ public class SimulationSelectView implements StateView {
     @Override
     public void initialize() {
         nextState = StateEnum.SimulationSelect;
+        this.timeoutElapsed = 0.0f;
 
         simulationMapping = new HashMap<>();
         simulationsNames = new ArrayList<>();
-        simulationsNames.add(new Text(new Vector3f(0.0f, -0.15f, RenderOrders.HUD2_z), "Back", FontAssets.robotoReg_OL, 0.1f, ColorAssets.menuEscapeColor));
+        simulationsNames.add(new Text(new Vector3f(0.0f, -0.15f, RenderOrders.HUD2_z), escapeText, FontAssets.robotoReg_OL, 0.1f, ColorAssets.menuEscapeColor));
         for (int i = 0; i < simulations.size(); i++) {
             Simulation sim = simulations.get(i);
 
             simulationsNames.add(new Text(new Vector3f(0.0f, -0.05f + 0.1f*i, RenderOrders.HUD2_z), sim.name, FontAssets.robotoReg_OL, 0.1f, ColorAssets.menuTextColor));
             simulationMapping.put(sim.name, sim);
         }
-        this.selectedOption = simulationsNames.getFirst().getTextStr();
 
         registerKeyboardCommands();
         registerCursorCommands();
@@ -63,6 +62,13 @@ public class SimulationSelectView implements StateView {
 
     private void registerKeyboardCommands() {
         keyboard = new KeyboardInput(graphics.getWindow());
+        keyboard.registerKeyDown(GLFW_KEY_ESCAPE, true, (double elapsedTime) -> {
+            // prevents the state from immediately switching to the main menu (if using keyboard)
+            if (this.timeoutElapsed < this.maxTimeOut)
+                return;
+
+            nextState = StateEnum.MainMenu;
+        });
     }
 
     private void registerCursorCommands() {
@@ -74,12 +80,12 @@ public class SimulationSelectView implements StateView {
                 cursor.setCursorType(GLFW_HAND_CURSOR);
             });
             cursor.addExitListener(simName, (double elapsedTime, double x, double y) -> {
-                Color textColor = simName.getTextStr().equals("Back To Main Menu") ? ColorAssets.menuEscapeColor : ColorAssets.menuTextColor;
+                Color textColor = simName.getTextStr().equals(escapeText) ? ColorAssets.menuEscapeColor : ColorAssets.menuTextColor;
                 simName.setColor(textColor);
                 cursor.setCursorType(GLFW_ARROW_CURSOR);
             });
             cursor.addLeftClickListener(simName, true, (double elapsedTime, double x, double y) -> {
-                if (simName.getTextStr().equals("Back To Main Menu")) {
+                if (simName.getTextStr().equals(escapeText)) {
                     nextState = StateEnum.MainMenu;
                     return;
                 }
@@ -99,6 +105,7 @@ public class SimulationSelectView implements StateView {
 
     @Override
     public void update(double elapsedTime) {
+        this.timeoutElapsed += (float) elapsedTime;
     }
 
     @Override

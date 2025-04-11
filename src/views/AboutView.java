@@ -1,10 +1,14 @@
 package views;
 
+import assets.ColorAssets;
+import assets.FontAssets;
 import edu.usu.graphics.Color;
-import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import edu.usu.graphics.objects.Text;
+import org.joml.Vector3f;
 import utils.KeyboardInput;
 import assets.SoundAssets;
+import utils.MouseInput;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -12,9 +16,11 @@ public class AboutView implements StateView {
     private final Graphics2D graphics;
     private final SoundAssets audio;
 
-    private KeyboardInput inputKeyboard;
-    private StateEnum nextGameState = StateEnum.About;
-    private Font font;
+    private KeyboardInput keyboard;
+    private MouseInput cursor;
+    
+    private StateEnum nextState = StateEnum.About;
+    private Text escapeText;
 
     public AboutView(Graphics2D graphics, SoundAssets audio) {
         this.graphics = graphics;
@@ -23,25 +29,42 @@ public class AboutView implements StateView {
 
     @Override
     public void initialize() {
-        nextGameState = StateEnum.About;
+        nextState = StateEnum.About;
 
-        font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
+        this.escapeText = new Text(new Vector3f(-0.85f, -0.5125f, 1.0f), "BACK (ESC)", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
 
-        registerCommands();
+        registerKeyboardCommands();
+        registerCursorCommands();
     }
 
-    private void registerCommands() {
-        inputKeyboard = new KeyboardInput(graphics.getWindow());
-        inputKeyboard.registerKeyDown(GLFW_KEY_ESCAPE, true, (double elapsedTime) -> {
-            nextGameState = StateEnum.MainMenu;
+    private void registerKeyboardCommands() {
+        keyboard = new KeyboardInput(graphics.getWindow());
+        keyboard.registerKeyDown(GLFW_KEY_ESCAPE, true, (double elapsedTime) -> {
+            nextState = StateEnum.MainMenu;
+        });
+    }
+
+    private void registerCursorCommands() {
+        this.cursor = new MouseInput(graphics.getWindow(), graphics.getWidth(), graphics.getHeight());
+        cursor.addHoverListener(escapeText, true, (double elapsedTime, double x, double y) -> {
+            escapeText.setColor(ColorAssets.menuSelectedColor);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(escapeText, (double elapsedTime, double x, double y) -> {
+            escapeText.setColor(ColorAssets.menuEscapeColor);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(escapeText, true, (double elapsedTime, double x, double y) -> {
+            nextState = StateEnum.MainMenu;
         });
     }
 
     @Override
     public StateEnum processInput(double elapsedTime) {
         // Updating the keyboard can change the nextGameState
-        inputKeyboard.update(elapsedTime);
-        return nextGameState;
+        keyboard.update(elapsedTime);
+        cursor.update(elapsedTime);
+        return nextState;
     }
 
     @Override
@@ -50,10 +73,11 @@ public class AboutView implements StateView {
 
     @Override
     public void render(double elapsedTime) {
-        final String message = "*I* wrote this amazing game!";
+        escapeText.draw(graphics);
+        final String message = "Written by Preston Hall for CS 5620!";
         final float height = 0.075f;
-        final float width = font.measureTextWidth(message, height);
+        final float width = FontAssets.robotoReg.measureTextWidth(message, height);
 
-        graphics.drawTextByHeight(font, message, 0.0f - width / 2, 0 - height / 2, height, Color.YELLOW);
+        graphics.drawTextByHeight(FontAssets.robotoReg, message, 0.0f - width / 2, 0 - height / 2, height, Color.YELLOW);
     }
 }

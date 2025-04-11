@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="" />
+    <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl-lib/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl-lib/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PhysicsTutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PhysicsTutor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/StateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ContextManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/AboutView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/AboutView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/MainMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/MainMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/SimulationSelectView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SimulationSelectView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/SimulationView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SimulationView.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,7 +29,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -36,7 +46,8 @@
     "Application.Driver - macOS.executor": "Run",
     "Application.Driver.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "trunk",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/prestonhall/Coding/Java/physics_tutor",
     "project.structure.last.edited": "Modules",

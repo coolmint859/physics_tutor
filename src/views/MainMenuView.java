@@ -20,20 +20,7 @@ public class MainMenuView implements StateView {
     private enum MenuState {
         Simulations,
         About,
-        Quit;
-
-        public MenuState next() {
-            int nextOrdinal = (this.ordinal() + 1) % MenuState.values().length;
-            return MenuState.values()[nextOrdinal];
-        }
-
-        public MenuState previous() {
-            int previousOrdinal = (this.ordinal() - 1) % MenuState.values().length;
-            if (previousOrdinal < 0) {
-                previousOrdinal = Quit.ordinal();
-            }
-            return MenuState.values()[previousOrdinal];
-        }
+        Quit
     }
 
     // stores position and text info for a menu item

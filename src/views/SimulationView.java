@@ -37,7 +37,7 @@ public class SimulationView implements StateView {
     public void initialize() {
         nextState = StateEnum.Simulation;
 
-        this.escapeText = new Text(new Vector3f(-0.7f, -0.5125f, 1.0f), "BACK", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
+        this.escapeText = new Text(new Vector3f(-0.85f, -0.5125f, 1.0f), "BACK (ESC)", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
 
         registerKeyboardCommands();
         registerCursorCommands();
@@ -49,6 +49,9 @@ public class SimulationView implements StateView {
 
     private void registerKeyboardCommands() {
         keyboard = new KeyboardInput(graphics.getWindow());
+        keyboard.registerKeyDown(GLFW_KEY_ESCAPE, true, (double elapsedTime) -> {
+            nextState = StateEnum.SimulationSelect;
+        });
     }
 
     private void registerCursorCommands() {
