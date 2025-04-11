@@ -1,0 +1,58 @@
+{
+  "id": 0,
+  "name": "Forces - Box On Wedge",
+  "simulationTime": 10,
+  "gravity": {
+    "x": 0.0,
+    "y": 9.81
+  },
+  "physicsObjects": [
+    {
+      "type": "polygon",
+      "bodyType": "static",
+      "mass": 10,
+      "density": 1,
+      "friction": 0.15,
+      "restitution": 0.1,
+      "velocity": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "vertices": [
+        {
+          "x": -0.25,
+          "y": -0.25
+        },
+        {
+          "x": 0.25,
+          "y": 0.0
+        },
+        {
+          "x": -0.25,
+          "y": 0.0
+        }
+      ]
+    },
+    {
+      "type": "circle",
+      "bodyType": "dynamic",
+      "mass": 10,
+      "radius": 0.1,
+      "density": 1,
+      "friction": 0.15,
+      "restitution": 0.1,
+      "velocity": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "position": {
+        "x": -0.2,
+        "y": -0.6
+      }
+    }
+  ]
+}
