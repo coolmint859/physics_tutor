@@ -1,5 +1,0 @@
-{
-  "simulations": {
-    "forces": "./resources/simulations/box_on_wedge.json"
-  }
-}

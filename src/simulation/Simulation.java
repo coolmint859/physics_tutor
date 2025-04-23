@@ -1,26 +1,117 @@
 package simulation;
 
-import physics.PhysicsObject2D;
+import edu.usu.graphics.Color;
+import edu.usu.graphics.Texture;
+import org.jbox2d.dynamics.BodyType;
+import org.joml.Vector2f;
+import physics.*;
 
 import java.util.ArrayList;
 
 public class Simulation {
-    private static int nextID = 0;
-    private final int id;
-
-    public ArrayList<PhysicsObject2D> physicsObjects;
-
-    public String name;
     public float simulationTime;
+    public Vector2f gravity;
+    public float zoom;
+    public String name;
+    public String description;
+    public ArrayList<String> solutionOptions;
+    public Color bgColor;
 
-    public Simulation(String name) {
-        this.name = name;
+    private final ArrayList<ObjectData> physicsObjects = new ArrayList<>();
 
-        this.id = nextID;
-        nextID++;
+    public transient PhysicsWorld world;
+    public transient double timeElapsedSinceStart;
+
+    public ArrayList<PhysicsObject2D> create() {
+        this.world = new PhysicsWorld(gravity, this.zoom);
+        this.timeElapsedSinceStart = 0;
+
+        ArrayList<PhysicsObject2D> objects = new ArrayList<>();
+        for (ObjectData data : this.physicsObjects) {
+            switch (data.type) {
+                case "rectangle" -> objects.add(createRectangle(data, world));
+                case "polygon" -> objects.add(createPolygon(data, world));
+                case "triangle" -> objects.add(createTriangle(data, world));
+                case "circle" -> objects.add(createCircle(data, world));
+            }
+        }
+        return objects;
     }
 
-    public int getID() {
-        return this.id;
+    public void stepForward(double elapsedTime, int iterations) {
+        if (timeElapsedSinceStart <= simulationTime) {
+            this.world.stepForward(elapsedTime, iterations);
+        }
+        timeElapsedSinceStart += elapsedTime;
+    }
+
+    public boolean simulationStopped() {
+        return this.timeElapsedSinceStart >= simulationTime;
+    }
+
+    private Rect createRectangle(ObjectData data, PhysicsWorld world) {
+        float rotation = -data.rotation * (float) Math.PI / 180f;
+        if (data.texture.isEmpty()) {
+            return new Rect(
+                    world, data.position, data.width, data.height, data.color, data.render_z, rotation, data.initial_velocity,
+                    data.bodyType, data.density, data.friction, data.restitution
+            );
+        } else {
+            Texture texture = new Texture(data.texture);
+            return new Rect(
+                    world, data.position, data.width, data.height, data.color, texture, data.render_z, rotation, data.initial_velocity,
+                    data.bodyType, data.density, data.friction, data.restitution
+            );
+        }
+    }
+
+    private Circle createCircle(ObjectData data, PhysicsWorld world) {
+        float rotation = -data.rotation * (float) Math.PI / 180f;
+        return new Circle(
+                world, data.color, data.position, data.radius, data.render_z, rotation,
+                data.initial_velocity, data.bodyType, data.density, data.friction, data.restitution
+        );
+    }
+
+    private Triangle createTriangle(ObjectData data, PhysicsWorld world) {
+        float rotation = -data.rotation * (float) Math.PI / 180f;
+        return new Triangle(
+                world, data.vertices.get(0), data.vertices.get(1), data.vertices.get(2), data.color,
+                data.render_z, rotation, data.initial_velocity, data.bodyType, data.density, data.friction, data.restitution
+        );
+    }
+
+    private Polygon createPolygon(ObjectData data, PhysicsWorld world) {
+        float rotation = -data.rotation * (float) Math.PI / 180f;
+        return new Polygon(
+                world, data.vertices, data.color, data.render_z, rotation, data.initial_velocity,
+                data.bodyType, data.density, data.friction, data.restitution
+        );
+    }
+
+    public static class ObjectData {
+        String type;
+        BodyType bodyType;
+        float density;
+        float friction;
+        float rotation;
+        float restitution;
+        Vector2f initial_velocity;
+        Vector2f position;
+
+        float render_z;
+        Color color;
+
+        // for circle types
+        float radius = 0;
+
+        // for rect types
+        float width = 0;
+        float height = 0;
+        String texture = "";
+
+        // for polygon types
+        ArrayList<Vector2f> vertices = new ArrayList<>();
     }
 }
+

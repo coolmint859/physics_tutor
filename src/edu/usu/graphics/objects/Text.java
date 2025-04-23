@@ -58,6 +58,14 @@ public class Text implements Clickable {
         return new Vector3f(center.x, center.y, center.z);
     }
 
+    public float getHeight() {
+        return this.height;
+    }
+
+    public float getWidth() {
+        return this.font.measureTextWidth(this.textStr, this.height);
+    }
+
     public static ArrayList<String> getTextStrings(ArrayList<Text> textObjects) {
         ArrayList<String> strings = new ArrayList<>();
         for (Text textObject : textObjects) {

@@ -3,16 +3,13 @@ package views;
 import assets.ColorAssets;
 import assets.FontAssets;
 import assets.SoundAssets;
-import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
 import edu.usu.graphics.objects.Text;
 import org.joml.Vector3f;
-import org.lwjgl.system.windows.MOUSEINPUT;
 import utils.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -23,21 +20,9 @@ public class MainMenuView implements StateView {
         Quit
     }
 
-    // stores position and text info for a menu item
-    private record MenuItem(int pos, String text) {
-        public static ArrayList<String> getAsStrings(ArrayList<MenuItem> items) {
-            String[] itemText = new String[items.size()];
-            for (var item : items) {
-                itemText[item.pos] = item.text;
-            }
-            return new ArrayList<>(List.of(itemText));
-        }
-    }
-
     private final Graphics2D graphics;
     private final SoundAssets audio;
 
-    private MenuState currentSelection = MenuState.Simulations;
     private StateEnum nextState = StateEnum.MainMenu;
 
     private KeyboardInput keyboard;
@@ -79,6 +64,7 @@ public class MainMenuView implements StateView {
 
     private void registerCursorCommands() {
         cursor = new MouseInput(this.graphics.getWindow(), this.graphics.getWidth(), this.graphics.getHeight());
+        cursor.setCursorType(GLFW_ARROW_CURSOR);
         for (Text textObject : this.textObjects) {
             cursor.addHoverListener(textObject, true, (double elapsedTime, double x, double y) -> {
                 textObject.setColor(ColorAssets.menuSelectedColor);
@@ -92,7 +78,8 @@ public class MainMenuView implements StateView {
                 nextState = switch (textObject.getTextStr()) {
                     case "Simulations" -> StateEnum.SimulationSelect;
                     case "About" -> StateEnum.About;
-                    default -> StateEnum.Quit;
+                    case "Quit" -> StateEnum.Quit;
+                    default -> (null);
                 };
             });
         }
@@ -113,6 +100,7 @@ public class MainMenuView implements StateView {
 
     @Override
     public void render(double elapsedTime) {
+        graphics.setClearColor(ColorAssets.menuBGColor);
         for (Text textObject : this.textObjects) {
             textObject.draw(graphics);
         }

@@ -157,6 +157,10 @@ public class Graphics2D  implements AutoCloseable {
         System.setProperty("java.awt.headless", "true");
     }
 
+    public void setClearColor(Color clearColor) {
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    }
+
     public boolean shouldClose() {
         return glfwWindowShouldClose(window);
     }

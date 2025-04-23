@@ -4,12 +4,16 @@ import assets.ColorAssets;
 import assets.FontAssets;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
+import edu.usu.graphics.objects.Rectangle;
 import edu.usu.graphics.objects.Text;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import physics.PhysicsObject2D;
 import simulation.Simulation;
-import utils.KeyboardInput;
+import utils.*;
 import assets.SoundAssets;
-import utils.MouseInput;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -18,11 +22,22 @@ public class SimulationView implements StateView {
     private final SoundAssets audio;
 
     private Simulation currentSimulation;
+    private ArrayList<PhysicsObject2D> physObjects;
+    private ArrayList<RadioButton> solutionOptionsText;
+    private boolean playSim;
+    private String currentSelectedOption;
 
     private KeyboardInput keyboard;
     private MouseInput cursor;
 
-    private Text escapeText;
+    private Text escapeButton;
+    private Text playPauseButton;
+    private Text resetSimButton;
+    private Text hintButton;
+    private Text submitButton;
+    private float panelWidth = 0.6f;
+    private Rectangle HUDPanel;
+    private Rectangle simPanel;
 
     private StateEnum nextState;
 
@@ -37,7 +52,26 @@ public class SimulationView implements StateView {
     public void initialize() {
         nextState = StateEnum.Simulation;
 
-        this.escapeText = new Text(new Vector3f(-0.85f, -0.5125f, 1.0f), "BACK (ESC)", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
+        this.physObjects = this.currentSimulation.create();
+        this.playSim = false;
+
+        float aspectRatio = (float) this.graphics.getHeight() / this.graphics.getWidth();
+        this.HUDPanel = new Rectangle(-1.0f, -aspectRatio, panelWidth, 2*aspectRatio, RenderOrders.HUD1_z);
+        this.simPanel = new Rectangle(-1.0f, aspectRatio - 0.1f, panelWidth, 0.1f, RenderOrders.HUD2_z);
+
+        this.solutionOptionsText = new ArrayList<>();
+        for (int i = 0; i < this.currentSimulation.solutionOptions.size(); i++) {
+            String option = this.currentSimulation.solutionOptions.get(i);
+            Text text = new Text(new Vector3f(-0.85f, -0.2f + 0.05f*i, 1.0f), option, FontAssets.robotoReg_OL, 0.04f, ColorAssets.simStaticTextColor);
+            solutionOptionsText.add(new RadioButton(text));
+        }
+        this.currentSelectedOption = "";
+
+        this.escapeButton = new Text(new Vector3f(-0.85f, -0.5125f, 1.0f), "BACK (ESC)", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
+        this.playPauseButton = new Text(new Vector3f(-0.85f, 0.52f, 1.0f), "PLAY", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor2);
+        this.resetSimButton = new Text(new Vector3f(-0.55f, 0.52f, 1.0f), "RESET", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor2);
+        this.hintButton = new Text(new Vector3f(-0.85f, 0.42f, 1.0f), "HINT", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor1);
+        this.submitButton = new Text(new Vector3f(-0.55f, 0.42f, 1.0f), "SUBMIT", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor1);
 
         registerKeyboardCommands();
         registerCursorCommands();
@@ -56,17 +90,95 @@ public class SimulationView implements StateView {
 
     private void registerCursorCommands() {
         cursor = new MouseInput(graphics.getWindow(), graphics.getWidth(), graphics.getHeight());
-        cursor.addHoverListener(escapeText, true, (double elapsedTime, double x, double y) -> {
-            escapeText.setColor(ColorAssets.menuSelectedColor);
+        cursor.setCursorType(GLFW_ARROW_CURSOR);
+
+        // commands for the escape button
+        cursor.addHoverListener(escapeButton, true, (double elapsedTime, double x, double y) -> {
+            escapeButton.setColor(ColorAssets.menuSelectedColor);
             cursor.setCursorType(GLFW_HAND_CURSOR);
         });
-        cursor.addExitListener(escapeText, (double elapsedTime, double x, double y) -> {
-            escapeText.setColor(ColorAssets.menuEscapeColor);
+        cursor.addExitListener(escapeButton, (double elapsedTime, double x, double y) -> {
+            escapeButton.setColor(ColorAssets.menuEscapeColor);
             cursor.setCursorType(GLFW_ARROW_CURSOR);
         });
-        cursor.addLeftClickListener(escapeText, true, (double elapsedTime, double x, double y) -> {
+        cursor.addLeftClickListener(escapeButton, true, (double elapsedTime, double x, double y) -> {
             nextState = StateEnum.SimulationSelect;
         });
+
+        // commands for the play/pause button
+        cursor.addHoverListener(playPauseButton, true, (double elapsedTime, double x, double y) -> {
+            playPauseButton.setColor(ColorAssets.simSelectedTextColor2);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(playPauseButton, (double elapsedTime, double x, double y) -> {
+            playPauseButton.setColor(ColorAssets.simButtonTextColor2);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(playPauseButton, true, (double elapsedTime, double x, double y) -> {
+            this.playSim = !playSim;
+            this.playPauseButton.setText(playSim ? "PAUSE" : "PLAY");
+        });
+
+        // commands for the reset button
+        cursor.addHoverListener(resetSimButton, true, (double elapsedTime, double x, double y) -> {
+            resetSimButton.setColor(ColorAssets.simSelectedTextColor2);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(resetSimButton, (double elapsedTime, double x, double y) -> {
+            resetSimButton.setColor(ColorAssets.simButtonTextColor2);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(resetSimButton, true, (double elapsedTime, double x, double y) -> {
+            this.playSim = false;
+            this.playPauseButton.setText("PLAY");
+            this.physObjects = this.currentSimulation.create();
+        });
+
+        // commands for the hint button
+        cursor.addHoverListener(hintButton, true, (double elapsedTime, double x, double y) -> {
+            hintButton.setColor(ColorAssets.simSelectedTextColor1);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(hintButton, (double elapsedTime, double x, double y) -> {
+            hintButton.setColor(ColorAssets.simButtonTextColor1);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(hintButton, true, (double elapsedTime, double x, double y) -> {
+            System.out.println("Student asked for a hint!");
+        });
+
+
+        // commands for the submit button
+        cursor.addHoverListener(submitButton, true, (double elapsedTime, double x, double y) -> {
+            submitButton.setColor(ColorAssets.simSelectedTextColor1);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(submitButton, (double elapsedTime, double x, double y) -> {
+            submitButton.setColor(ColorAssets.simButtonTextColor1);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(submitButton, true, (double elapsedTime, double x, double y) -> {
+            if (this.currentSelectedOption.isEmpty()) {
+                System.out.println("The student attempted to submit an empty response!");
+            } else {
+                System.out.println("Student submitted their response! They chose: " + this.currentSelectedOption);
+            }
+        });
+
+        for (RadioButton button: this.solutionOptionsText) {
+            cursor.addHoverListener(button, true, (double elapsedTime, double x, double y) -> {
+                button.hoverOver();
+                cursor.setCursorType(GLFW_HAND_CURSOR);
+            });
+            cursor.addExitListener(button, (double elapsedTime, double x, double y) -> {
+                button.exitHover();
+                cursor.setCursorType(GLFW_ARROW_CURSOR);
+            });
+            cursor.addLeftClickListener(button, true, (double elapsedTime, double x, double y) -> {
+                this.currentSelectedOption = button.getTextStr();
+                button.select(this.solutionOptionsText);
+            });
+        }
     }
 
     @Override
@@ -79,16 +191,67 @@ public class SimulationView implements StateView {
 
     @Override
     public void update(double elapsedTime) {
+        for (PhysicsObject2D obj : this.physObjects) {
+            obj.update(elapsedTime);
+        }
+        if (playSim) this.currentSimulation.stepForward(elapsedTime, 10);
+
+        if (this.currentSimulation.simulationStopped()) {
+            this.physObjects = this.currentSimulation.create();
+            this.playPauseButton.setText("PLAY");
+            this.playSim = false;
+        }
+    }
+
+    // used to fit the description text onto the display panel
+    public ArrayList<String> splitDescription() {
+        ArrayList<String> descStrings = new ArrayList<>();
+        int descLength = this.currentSimulation.description.length();
+        int maxLength = (int) (panelWidth * 55);
+        int lastSplitIndex = 0;
+        int currentSplitIndex = 0;
+
+        for (int i = 0; i < descLength; i++) {
+            char currentChar = this.currentSimulation.description.charAt(i);
+            if (currentChar == ' ' && currentSplitIndex - maxLength >= 0) {
+                descStrings.add(this.currentSimulation.description.substring(lastSplitIndex, i));
+                lastSplitIndex = i+1;
+                currentSplitIndex = 0;
+                continue;
+            }
+            currentSplitIndex += 1;
+        }
+        if (lastSplitIndex <= descLength) {
+            descStrings.add(this.currentSimulation.description.substring(lastSplitIndex, descLength));
+        }
+        return descStrings;
     }
 
     @Override
     public void render(double elapsedTime) {
-        escapeText.draw(graphics);
+        graphics.setClearColor(currentSimulation.bgColor);
 
-        final String message = "You are seeing simulation " + this.currentSimulation.name;
-        final float height = 0.075f;
-        final float width = FontAssets.robotoReg.measureTextWidth(message, height);
+        graphics.draw(HUDPanel, ColorAssets.HUDColor1);
+        graphics.draw(simPanel, ColorAssets.HUDColor2);
 
-        graphics.drawTextByHeight(FontAssets.robotoReg, message, 0.0f - width / 2, 0 - height / 2, height, Color.YELLOW);
+        escapeButton.draw(graphics);
+        playPauseButton.draw(graphics);
+        resetSimButton.draw(graphics);
+        hintButton.draw(graphics);
+        submitButton.draw(graphics);
+
+        for (PhysicsObject2D obj : this.physObjects) {
+            obj.render(graphics, elapsedTime);
+        }
+
+        InfoPanel panel = new InfoPanel(
+                new Vector2f(-1.0f + panelWidth/2, -0.35f), splitDescription(), InfoPanel.TextAlignment.LEFT,
+                Color.BLACK, 0.04f, 0.0f
+        );
+        panel.render(graphics, FontAssets.robotoReg, RenderOrders.HUD2_z, RenderOrders.TEXT1_z);
+
+        for (RadioButton button : this.solutionOptionsText) {
+            button.render(graphics, RenderOrders.HUD2_z);
+        }
     }
 }

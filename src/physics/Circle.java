@@ -5,6 +5,7 @@ import edu.usu.graphics.Graphics2D;
 
 import edu.usu.graphics.objects.Triangle;
 import org.jbox2d.collision.shapes.*;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 
 import org.joml.Vector2f;
@@ -17,39 +18,39 @@ public class Circle implements PhysicsObject2D {
     private final PhysicsWorld world;
     private Body body;
 
-    private ArrayList<Vector3f> circlePoints;
     private Vector3f center;
-
     public float renderOrder;
-    public boolean showLine;
     public Color color;
-
     public float radius;
-    public float angle;
-    public float mass = 1.0f;
-    public float density = 1.0f;
-    public float friction = 0.5f;
-    public float restitution = 0.5f;
 
-    public Circle(PhysicsWorld world, Vector3f center, float radius, Color color, BodyType type, boolean showLine) {
+    public float angle;
+    public float friction;
+    public float restitution;
+
+    public Circle(PhysicsWorld world, Color color, Vector2f center, float radius, float renderOrder, float initRotation, Vector2f initVelocity, BodyType type, float density, float friction, float restitution) {
         this.world = world;
         this.color = color;
-        this.showLine = showLine;
+        this.center = new Vector3f(center.x, center.y, renderOrder);
+        this.radius = radius;
+        this.renderOrder = renderOrder;
 
-        this.createPhysicsObject(center, radius, type);
-        this.createCirclePoints(center, radius);
+        this.friction = friction;
+        this.restitution = restitution;
+
+        this.createPhysicsObject(center, radius, type, density, initRotation, initVelocity);
     }
 
     /** Creates a body object that the physics library can use to do physics with */
-    private void createPhysicsObject(Vector3f center, float radius, BodyType type) {
+    private void createPhysicsObject(Vector2f center, float radius, BodyType type, float density, float initRotation, Vector2f initVelocity) {
         // create body definition;
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = type;
-        bodyDef.position.set(this.world.canvasToWorldCoords(new Vector2f(center.x, center.y)));
+        bodyDef.position.set(new Vec2(center.x, center.y));
+        bodyDef.angle = initRotation;
+        bodyDef.linearVelocity = new Vec2(initVelocity.x, initVelocity.y);
 
         // create body and place in the world
         this.body = world.addAndCreateBody(bodyDef);
-        this.body.m_mass = mass;
         this.angle = this.body.getAngle();
 
         // create shape
@@ -67,24 +68,6 @@ public class Circle implements PhysicsObject2D {
         body.createFixture(fx);
     }
 
-    /** Creates a series of points that the graphics library can use to render a circle */
-    private void createCirclePoints(Vector3f center, float radius) {
-        this.circlePoints = new ArrayList<>();
-        this.center = center;
-        this.radius = radius;
-        this.renderOrder = center.z;
-        //TODO: change this to be dependent on the radius
-        int numPoints = 30;
-        for (int i = 0; i < numPoints; i++) {
-            float angle = (float) (2.0 * Math.PI / numPoints * i) + this.angle;
-            float nextX = this.center.x + radius * (float) Math.cos(angle);
-            float nextY = this.center.y + radius * (float) Math.sin(angle);
-
-            this.circlePoints.add(new Vector3f(nextX, nextY, this.renderOrder));
-        }
-        this.circlePoints.add(this.circlePoints.getFirst());
-    }
-
     @Override
     public Body getBody() {
         return this.body;
@@ -95,30 +78,64 @@ public class Circle implements PhysicsObject2D {
         return new Vector2f(this.center.x, this.center.y);
     }
 
+    public Vector2f getCenterCanvas() {
+        return new Vector2f(this.world.worldCoordsToCanvas(new Vec2(center.x, center.y)));
+    }
+
     /** update the position of the points that represent the circle*/
     @Override
     public void update(double elapsedTime) {
-        // retrieve the center point of the body from the world
-        Vector2f bodyCenter = this.world.getBodyCenter(this.body);
+        // retrieve the center and angle of the body from the world
+        Vec2 bodyCenter = this.body.getWorldCenter();
         this.center = new Vector3f(bodyCenter.x, bodyCenter.y, this.renderOrder);
-        this.angle = -this.body.getAngle(); // inverted because the y-axis on the canvas is flipped
-
-        // update the vector points of the circle
-        createCirclePoints(this.center, this.radius);
+        this.angle = this.body.getAngle();
     }
 
-    /** render this circle to the screen using the passed in graphics object*/
+    /** Creates a series of points that the graphics library can use to render a circle */
+    private ArrayList<Vector3f> createCirclePoints(Vector3f center, float radius) {
+        ArrayList<Vector3f> circlePoints = new ArrayList<>();
+        int numPoints = 30; //TODO: change this to be dependent on the radius
+        for (int i = 0; i < numPoints; i++) {
+            float angle = (float) (2.0 * Math.PI / numPoints * i) + this.angle;
+            float nextX = center.x + radius * (float) Math.cos(angle);
+            float nextY = center.y + radius * (float) Math.sin(angle);
+
+            circlePoints.add(new Vector3f(nextX, nextY, this.renderOrder));
+        }
+        circlePoints.add(circlePoints.getFirst());
+        return circlePoints;
+    }
+
+    /** render this circle to the screen using the passed in graphics object */
     @Override
     public void render(Graphics2D graphics, double elapsedTime) {
-        Vector2f center = new Vector2f(this.center.x, this.center.y);
-        for (int i = 0; i < this.circlePoints.size()-1; i++) {
-            Vector3f v1 = this.circlePoints.get(i);
-            Vector3f v2 = this.circlePoints.get(i+1);
-            graphics.draw(new Triangle(this.center, v1, v2), this.angle, center, this.color);
-        }
+        // convert the center and radius for the graphics API
+        Vector2f centerCanvas2f = this.world.worldCoordsToCanvas(new Vec2(this.center.x, -this.center.y));
+        Vector3f centerCanvas3f = new Vector3f(centerCanvas2f.x, centerCanvas2f.y, renderOrder);
+        float canvasRadius = this.world.scalarWorldToCanvas(this.radius);
 
-        Vector3f firstPoint = this.circlePoints.getFirst();
-        if (this.showLine)
-            graphics.draw(this.center, new Vector3f(firstPoint.x, firstPoint.y, this.renderOrder+0.01f), Color.BLACK);
+        // updates the points on the circle if the center changed position
+        ArrayList<Vector3f> circlePoints = createCirclePoints(centerCanvas3f, canvasRadius);
+
+        // render the circle as a set of triangles
+        for (int i = 0; i < circlePoints.size()-1; i++) {
+            Vector3f v1 = circlePoints.get(i);
+            Vector3f v2 = circlePoints.get(i+1);
+            graphics.draw(new Triangle(centerCanvas3f, v1, v2), -this.angle, centerCanvas2f, this.color);
+        }
+    }
+
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("\nObject 'Rectangle':");
+        str.append(String.format("\n\tType: '%s'", this.getBody().m_type));
+        str.append(String.format("\n\tMass: %f kg", this.getBody().m_mass));
+        str.append(String.format("\n\tFriction: %f", this.friction));
+        str.append(String.format("\n\tRotation: %f rad", this.angle));
+        str.append(String.format("\n\tRestitution: %f", this.restitution));
+        str.append(String.format("\n\tVelocity: %s m/s", this.getBody().getLinearVelocity()));
+        str.append(String.format("\n\tCenter: %s cu", this.getCenterCanvas()));
+        str.append(String.format("\n\tRadius: %s cu", this.world.scalarWorldToCanvas(this.radius)));
+        return str.toString();
     }
 }

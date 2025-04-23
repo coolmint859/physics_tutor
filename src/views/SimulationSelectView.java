@@ -110,6 +110,7 @@ public class SimulationSelectView implements StateView {
 
     @Override
     public void render(double elapsedTime) {
+        graphics.setClearColor(ColorAssets.menuBGColor);
         for (Text simName : this.simulationsNames) {
             simName.draw(graphics);
         }

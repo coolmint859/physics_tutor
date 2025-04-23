@@ -9,6 +9,11 @@ import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+/**
+ * The context manager handles the switching between the different views, as the user selects the different views.
+ * It does this by having the current active view communicate the next view that should be displayed in the next frame.
+ * As this is tied directly to the main loop, that is handled here as well.
+ * */
 public class ContextManager {
     private final Graphics2D graphics;
     private final SoundAssets sounds;
@@ -24,8 +29,12 @@ public class ContextManager {
         this.sounds = new SoundAssets();
     }
 
+    /**
+     * Initializes the views and the currently active view
+     * */
     public void initialize() {
-        ArrayList<Simulation> simulations = SimulationParser.parse("./resources/simulations/simulation_index.json");
+        ArrayList<Simulation> simulations = SimulationParser.createFromIndex("./resources/simulations/index.json");
+        assert simulations != null && !simulations.isEmpty();
 
         states = new HashMap<>();
         this.states.put(StateEnum.Simulation, new SimulationView(graphics, sounds, simulations.getFirst()));
@@ -38,9 +47,16 @@ public class ContextManager {
         currentState.initialize();
     }
 
+    /**
+     * shuts down the graphics, ending the current session.
+     * */
     public void shutdown() {
+        this.graphics.close();
     }
 
+    /**
+     * Executes the main program loop. This is run for as long as the window is active.
+     * */
     public void run() {
         // Grab the first time
         double previousTime = glfwGetTime();
@@ -58,6 +74,9 @@ public class ContextManager {
         }
     }
 
+    /**
+     * Processes events made by the user in the current context
+     * */
     private void processInput(double elapsedTime) {
         // Poll for window events: required in order for window, keyboard, etc events are captured.
         glfwPollEvents();
@@ -65,6 +84,9 @@ public class ContextManager {
         nextStateEnum = currentState.processInput(elapsedTime);
     }
 
+    /**
+     * Updates the current state/switches to other states if the user requests to in the current context
+     * */
     private void update(double elapsedTime) {
         // Special case for exiting the game
         if (nextStateEnum == StateEnum.Quit) {
@@ -81,6 +103,9 @@ public class ContextManager {
         }
     }
 
+    /**
+     * renders the current context to the window
+     * */
     private void render(double elapsedTime) {
         graphics.begin();
 

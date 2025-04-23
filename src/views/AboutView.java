@@ -46,6 +46,7 @@ public class AboutView implements StateView {
 
     private void registerCursorCommands() {
         this.cursor = new MouseInput(graphics.getWindow(), graphics.getWidth(), graphics.getHeight());
+        cursor.setCursorType(GLFW_ARROW_CURSOR);
         cursor.addHoverListener(escapeText, true, (double elapsedTime, double x, double y) -> {
             escapeText.setColor(ColorAssets.menuSelectedColor);
             cursor.setCursorType(GLFW_HAND_CURSOR);

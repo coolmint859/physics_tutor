@@ -5,11 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/simulations/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/google/gson-2.10.1.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/RadioButton.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lwjgl-lib/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl-lib/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics_tutor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/physics_tutor.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/simulations/box_on_wedge.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/box_wedge.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/simulations/simulation_index.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/index.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ContextManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ContextManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PhysicsTutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PhysicsTutor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/StateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ContextManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/ColorAssets.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/ColorAssets.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/Graphics2D.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/Graphics2D.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/objects/Text.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/objects/Text.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Circle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/Circle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/PhysicsWorld.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/PhysicsWorld.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Polygon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/Polygon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Rect.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/Rect.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Triangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/Triangle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/simulation/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/simulation/Simulation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/simulation/SimulationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/simulation/SimulationParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/InfoPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/InfoPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/AboutView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/AboutView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/MainMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/MainMenuView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/SimulationSelectView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SimulationSelectView.java" afterDir="false" />
@@ -45,11 +60,14 @@
     "Application.Driver - Windows/Linux.executor": "Run",
     "Application.Driver - macOS.executor": "Run",
     "Application.Driver.executor": "Run",
+    "Application.GPTExample.executor": "Run",
+    "Application.SimulationParser.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/prestonhall/Coding/Java/physics_tutor",
+    "last_opened_file_path": "/Users/prestonhall/Coding/Java/physics_tutor/src",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -58,6 +76,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/resources/images" />
       <recent name="$PROJECT_DIR$/src/utils" />
     </key>
@@ -103,6 +122,15 @@
     </ignored-roots>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/physics/Circle.java</url>
+          <line>88</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="allChars.length()" language="JAVA" />

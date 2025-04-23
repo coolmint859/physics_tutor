@@ -12,15 +12,15 @@ public class PhysicsWorld {
     private final World world;
 
     // 1 real life meter is this in canvas units
-    private float canvasMeter = 0.05f;
+    private float canvasMeter;
 
-    public PhysicsWorld(Vector2f gravity) {
+    public PhysicsWorld(Vector2f gravity, float canvasMeter) {
         this.world = new World(new Vec2(gravity.x, gravity.y), false);
+        this.canvasMeter = canvasMeter;
     }
 
-    public void stepForward(double elapsedTime) {
+    public void stepForward(double elapsedTime, int calculationsPerFrame) {
         // the higher the number, the more accurate the physics, at the cost of frame rate.
-        int calculationsPerFrame = 10;
         this.world.step((float) elapsedTime, calculationsPerFrame, calculationsPerFrame);
     }
 
