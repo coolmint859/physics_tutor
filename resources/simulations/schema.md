@@ -21,8 +21,12 @@ has a path to a simulation file that doesn't exist, an error will be thrown.
 The simulation data files store information about individual simulations. Here are the required parameters:
 
 - name (String): the name of the simulation
+- description (String): the description of the simulation. This will be displayed to the student and fed into the LLM, so this need to be
+  fairly specific and clear. Make sure to specify any constants that the student will need to solve the problem.
+- solutionOptions: (List of Strings): The possible options that the student can choose to answer the problem. I trust that at least one of these is the correct one!
 - simulationTime (float): the amount of time in seconds that the simulation will play once started
 - gravity (Vector2f): the force of gravity in the world, in m/s^2. (set this to 0 if birds eye view).
+- bgColor (Color): the rgb colors that the graphics engine will draw to the background.
 - zoom (float): the size of a meter for the graphics engine to render objects as. Smaller values effectively "zooms out", hence the name.
   - Note: a zoom value of 1 means that 1 graphics canvas unit is the same as 1 meter. As the canvas is usually from -1 to 1 in the x direction, 
     most objects will fill the screen if zoom=1. In practice, most zoom values will be fairly small (between 0.01 and 0.1).
@@ -39,7 +43,7 @@ The simulation data files store information about individual simulations. Here a
 
 For graphics, physics objects also require the following parameters:
 - render_z (float): The order for which the object should be rendered. Higher values mean that it gets rendered "on top of" objects with lower values.
-- color (Color): The color of the object, in terms of r,g,b and a, where a is the alpha transparency. Values are between 0 and 1, where (0,0,0,1) is 
+- color (Color): The color of the object, in terms of r,g,b and a, where a is the alpha transparency. Values are between 0 and 1, where (0,0,0,0) is 
   black with no transparency.
 
 Rectangle Physics Objects also have an optional "texture" parameter, which is a path to a image to overlay on the object.
@@ -56,6 +60,5 @@ so specifying the position parameter for a polygon will be ignored. Triangles de
 meters.
 - For circles, one additional parameter is required, "radius" (a float), which is also in terms of meters.
 
-When the object is defined, the density of the object is inferred from its mass and area using the formula d = m/a. For polygons, 
-the area is calculated using the Shoelace Theorem. Calculating the density internally is to help the physics be consistent with real life. 
-Objects with variable density is not supported.
+When the object is defined, the mass of the object is inferred from its density and area using the formula m = d*a. This is to allow for the simulation
+to work with JBox2D more easily. Objects with variable density is not supported.

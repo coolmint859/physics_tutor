@@ -32,12 +32,12 @@ public class ContextManager {
     /**
      * Initializes the views and the currently active view
      * */
-    public void initialize() {
+    public void initialize(String LLM_API_KEY) {
         ArrayList<Simulation> simulations = SimulationParser.createFromIndex("./resources/simulations/index.json");
         assert simulations != null && !simulations.isEmpty();
 
         states = new HashMap<>();
-        this.states.put(StateEnum.Simulation, new SimulationView(graphics, sounds, simulations.getFirst()));
+        this.states.put(StateEnum.Simulation, new SimulationView(graphics, sounds, simulations.getFirst(), LLM_API_KEY));
         this.states.put(StateEnum.SimulationSelect, new SimulationSelectView(
                 graphics, sounds, simulations, (SimulationView) this.states.get(StateEnum.Simulation)));
         this.states.put(StateEnum.MainMenu, new MainMenuView(graphics, sounds));

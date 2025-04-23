@@ -3,6 +3,7 @@ package edu.usu.graphics.objects;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -66,6 +67,10 @@ public class Text implements Clickable {
         return this.font.measureTextWidth(this.textStr, this.height);
     }
 
+    public Font getFont() {
+        return this.font;
+    }
+
     public static ArrayList<String> getTextStrings(ArrayList<Text> textObjects) {
         ArrayList<String> strings = new ArrayList<>();
         for (Text textObject : textObjects) {
@@ -90,5 +95,14 @@ public class Text implements Clickable {
 
     public void draw(Graphics2D graphics) {
         graphics.drawTextByHeight(font, textStr, left, top, height, center.z, color);
+    }
+
+    // if the user wants to override the center for whatever reason
+    public void draw(Graphics2D graphics, Vector2f center, float TEXT_z) {
+        this.width = font.measureTextWidth(textStr, height);
+        this.left = center.x - width / 2;
+        this.top = center.y - height / 2;
+
+        graphics.drawTextByHeight(font, textStr, left, top, height, TEXT_z, color);
     }
 }

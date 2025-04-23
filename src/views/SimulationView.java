@@ -4,6 +4,7 @@ import assets.ColorAssets;
 import assets.FontAssets;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
+import edu.usu.graphics.Texture;
 import edu.usu.graphics.objects.Rectangle;
 import edu.usu.graphics.objects.Text;
 import org.joml.Vector2f;
@@ -27,6 +28,16 @@ public class SimulationView implements StateView {
     private boolean playSim;
     private String currentSelectedOption;
 
+    private LLMRequest chatgpt;
+    private String hint = "Loading...";
+    private String submissionResponse = "Loading...";
+    private DescriptionPanel hintPanel;
+    private DescriptionPanel submitPanel;
+    private Text descPanelCloseButton;
+
+    private boolean renderHint;
+    private boolean renderSubmitResponse;
+
     private KeyboardInput keyboard;
     private MouseInput cursor;
 
@@ -35,29 +46,40 @@ public class SimulationView implements StateView {
     private Text resetSimButton;
     private Text hintButton;
     private Text submitButton;
-    private float panelWidth = 0.6f;
+    private final float HUDpanelWidth = 0.6f;
     private Rectangle HUDPanel;
     private Rectangle simPanel;
 
     private StateEnum nextState;
 
-    public SimulationView(Graphics2D graphics, SoundAssets audio, Simulation defaultSim) {
+    public SimulationView(Graphics2D graphics, SoundAssets audio, Simulation defaultSim, String LLM_API_KEY) {
         this.graphics = graphics;
         this.audio = audio;
 
         this.currentSimulation = defaultSim;
+
+        this.chatgpt = new LLMRequest(this.currentSimulation.description, this.currentSimulation.solutionOptions, LLM_API_KEY);
     }
 
     @Override
     public void initialize() {
         nextState = StateEnum.Simulation;
 
+        this.descPanelCloseButton = new Text(new Vector3f(), "CLOSE", FontAssets.robotoReg, 0.05f, ColorAssets.menuTextColor);
+
+        this.hintPanel = new DescriptionPanel(new Vector2f(), this.hint, 0.04f, descPanelCloseButton, InfoPanel.TextAlignment.CENTERED);
+        this.hintPanel.setTexture(new Texture("./resources/images/simplebg.png"), 0.025f, RenderOrders.HUD2_z);
+        this.submitPanel = new DescriptionPanel(new Vector2f(), this.submissionResponse, 0.04f, descPanelCloseButton, InfoPanel.TextAlignment.CENTERED);
+        this.submitPanel.setTexture(new Texture("./resources/images/simplebg.png"), 0.025f, RenderOrders.HUD2_z);
+        this.renderHint = false;
+        this.renderSubmitResponse = false;
+
         this.physObjects = this.currentSimulation.create();
         this.playSim = false;
 
         float aspectRatio = (float) this.graphics.getHeight() / this.graphics.getWidth();
-        this.HUDPanel = new Rectangle(-1.0f, -aspectRatio, panelWidth, 2*aspectRatio, RenderOrders.HUD1_z);
-        this.simPanel = new Rectangle(-1.0f, aspectRatio - 0.1f, panelWidth, 0.1f, RenderOrders.HUD2_z);
+        this.HUDPanel = new Rectangle(-1.0f, -aspectRatio, HUDpanelWidth, 2*aspectRatio, RenderOrders.HUD1_z);
+        this.simPanel = new Rectangle(-1.0f, aspectRatio - 0.1f, HUDpanelWidth, 0.1f, RenderOrders.HUD2_z);
 
         this.solutionOptionsText = new ArrayList<>();
         for (int i = 0; i < this.currentSimulation.solutionOptions.size(); i++) {
@@ -144,9 +166,9 @@ public class SimulationView implements StateView {
             cursor.setCursorType(GLFW_ARROW_CURSOR);
         });
         cursor.addLeftClickListener(hintButton, true, (double elapsedTime, double x, double y) -> {
-            System.out.println("Student asked for a hint!");
+            requestHint();
+            this.renderHint = true;
         });
-
 
         // commands for the submit button
         cursor.addHoverListener(submitButton, true, (double elapsedTime, double x, double y) -> {
@@ -158,11 +180,26 @@ public class SimulationView implements StateView {
             cursor.setCursorType(GLFW_ARROW_CURSOR);
         });
         cursor.addLeftClickListener(submitButton, true, (double elapsedTime, double x, double y) -> {
-            if (this.currentSelectedOption.isEmpty()) {
-                System.out.println("The student attempted to submit an empty response!");
-            } else {
-                System.out.println("Student submitted their response! They chose: " + this.currentSelectedOption);
-            }
+            // do nothing if student hasn't selected anything
+            if (this.currentSelectedOption.isEmpty())
+                return;
+
+            requestSubmit();
+            this.renderSubmitResponse = true;
+        });
+
+        // commands for the hint close button (only displayed if the student requested a hint/ or submitted a response)
+        cursor.addHoverListener(descPanelCloseButton, true, (double elapsedTime, double x, double y) -> {
+            descPanelCloseButton.setColor(ColorAssets.menuSelectedColor);
+            cursor.setCursorType(GLFW_HAND_CURSOR);
+        });
+        cursor.addExitListener(descPanelCloseButton, (double elapsedTime, double x, double y) -> {
+            descPanelCloseButton.setColor(ColorAssets.menuTextColor);
+            cursor.setCursorType(GLFW_ARROW_CURSOR);
+        });
+        cursor.addLeftClickListener(descPanelCloseButton, true, (double elapsedTime, double x, double y) -> {
+            this.renderHint = false;
+            this.renderSubmitResponse = false;
         });
 
         for (RadioButton button: this.solutionOptionsText) {
@@ -179,6 +216,36 @@ public class SimulationView implements StateView {
                 button.select(this.solutionOptionsText);
             });
         }
+    }
+
+    private void requestHint() {
+        this.hint = "Loading...";
+        // run the request in a new thread as this is a https request
+        Runnable t = () -> {
+            String hint;
+            do {
+                hint = this.chatgpt.requestHint();
+            } while (hint == null);
+
+            this.hint = hint;
+        };
+        Thread thread = new Thread(t);
+        thread.start();
+    }
+
+    private void requestSubmit() {
+        this.submissionResponse = "Loading...";
+        // run the request in a new thread, and only if the submission isn't empty
+        Runnable t = () -> {
+            String subResponse;
+            do {
+                subResponse = this.chatgpt.requestSubmission(this.currentSelectedOption);
+            } while (subResponse == null);
+
+            this.submissionResponse = subResponse;
+        };
+        Thread thread = new Thread(t);
+        thread.start();
     }
 
     @Override
@@ -201,13 +268,17 @@ public class SimulationView implements StateView {
             this.playPauseButton.setText("PLAY");
             this.playSim = false;
         }
+
+        // constantly update each frame to make sure we display the response when it arrives
+        this.hintPanel.setDescription(this.hint);
+        this.submitPanel.setDescription(this.submissionResponse);
     }
 
     // used to fit the description text onto the display panel
     public ArrayList<String> splitDescription() {
         ArrayList<String> descStrings = new ArrayList<>();
         int descLength = this.currentSimulation.description.length();
-        int maxLength = (int) (panelWidth * 55);
+        int maxLength = (int) (HUDpanelWidth * 55);
         int lastSplitIndex = 0;
         int currentSplitIndex = 0;
 
@@ -234,6 +305,9 @@ public class SimulationView implements StateView {
         graphics.draw(HUDPanel, ColorAssets.HUDColor1);
         graphics.draw(simPanel, ColorAssets.HUDColor2);
 
+        if (renderHint) this.hintPanel.render(graphics, FontAssets.robotoReg, RenderOrders.TEXT2_z);
+        if (renderSubmitResponse) this.submitPanel.render(graphics, FontAssets.robotoReg, RenderOrders.TEXT2_z);
+
         escapeButton.draw(graphics);
         playPauseButton.draw(graphics);
         resetSimButton.draw(graphics);
@@ -245,7 +319,7 @@ public class SimulationView implements StateView {
         }
 
         InfoPanel panel = new InfoPanel(
-                new Vector2f(-1.0f + panelWidth/2, -0.35f), splitDescription(), InfoPanel.TextAlignment.LEFT,
+                new Vector2f(-1.0f + HUDpanelWidth /2, -0.35f), splitDescription(), InfoPanel.TextAlignment.LEFT,
                 Color.BLACK, 0.04f, 0.0f
         );
         panel.render(graphics, FontAssets.robotoReg, RenderOrders.HUD2_z, RenderOrders.TEXT1_z);

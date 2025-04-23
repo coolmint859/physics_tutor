@@ -67,6 +67,9 @@ public class Font {
         int totalWidth = 0;
 
         for (char character : characters) {
+            if (texture.getCharInfo(character) == null)
+                continue;
+
             totalWidth += texture.getCharInfo(character).getWidth();
         }
 
@@ -98,6 +101,9 @@ public class Font {
         //         a relative width for each character to be rendered
         int totalWidth = 0;
         for (char c : characters) {
+            if (texture.getCharInfo(c) == null)
+                continue;
+
             totalWidth += texture.getCharInfo(c).getWidth();
         }
 
@@ -105,6 +111,9 @@ public class Font {
         //         for where to find those characters in the FontTexture
         float currentLeft = left;
         for (char character : characters) {
+            if (texture.getCharInfo(character) == null)
+                continue;
+
             FontTexture.CharInfo info = texture.getCharInfo(character);
 
             // Compute the texture coords for this texture
