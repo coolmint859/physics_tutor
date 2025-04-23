@@ -32,6 +32,9 @@ public class LLMRequest {
     }
 
     public String requestHint() {
+        if (API_KEY.isEmpty())
+            return "No hint generated. Check to make sure a valid API key was used to launch the tutoring software.";
+
         StringBuilder message = new StringBuilder(developerMessage);
         message.append("The student has asked for a hint for this problem. Give one in no more than 2 sentences.");
 
@@ -39,6 +42,9 @@ public class LLMRequest {
     }
 
     public String requestSubmission(String submission) {
+        if (API_KEY.isEmpty())
+            return "No submission response generated. Check to make sure a valid API key was used to launch the tutoring software.";
+
         StringBuilder message = new StringBuilder(developerMessage);
         message.append(String.format("The student has found a solution to be: '%s'. " +
                 "Give a short, 3 sentence explanation addressed to the student as to why this is correct or incorrect. " +
@@ -46,7 +52,6 @@ public class LLMRequest {
                 "one correct answer of the options given to the student. When writing out your explanation, DO NOT Use " +
                 "Latex to write out your equations. Instead, just use plain text.", submission));
 
-//        return message.toString();
         return sendRequest(message.toString());
     }
 
