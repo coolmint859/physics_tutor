@@ -6,16 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/simulations/billiards.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/billiards.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/simulations/box_wedge.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/box_wedge.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/simulations/cannon_ball.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/cannon_ball.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/simulations/index.json" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/index.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/simulations/schema.md" beforeDir="false" afterPath="$PROJECT_DIR$/resources/simulations/schema.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/physics/Circle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/Circle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/simulation/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/simulation/Simulation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/simulation/SimulationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/simulation/SimulationParser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/LLMRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/LLMRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/RadioButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/RadioButton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/SimulationView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SimulationView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,17 +81,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GPTTest" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="utils.LLMRequest" />
-      <module name="physics_tutor" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Application.Driver - Windows/Linux" />
       <item itemvalue="Application.Driver - macOS" />
-      <item itemvalue="Application.GPTTest" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />

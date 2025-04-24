@@ -49,17 +49,4 @@ public class SimulationParser {
             return null;
         }
     }
-
-    // for debugging
-    public static void main(String[] args) {
-        ArrayList<Simulation> simulations = SimulationParser.createFromIndex("./resources/simulations/index.json");
-
-        assert simulations != null;
-        for (Simulation physSim : simulations) {
-            ArrayList<PhysicsObject2D> physicsObjects = physSim.create();
-            for (PhysicsObject2D object : physicsObjects) {
-                System.out.println(object.toString());
-            }
-        }
-    }
 }

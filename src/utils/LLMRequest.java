@@ -96,24 +96,10 @@ public class LLMRequest {
                 }
                 return "Error: Could not extract response content.";
             } else {
-                return "Error: API request failed with status code " + response.statusCode() + "\nBody: " + response.body();
+                return "Error: API request failed with status code " + response.statusCode();
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | InterruptedException e) {
+            return "Error loading a response. Make sure you're connected to the internet.";
         }
-    }
-
-    public static void main(String[] args) {
-        String desc = "A box of mass 10 kg sits on a ramp at an incline of 30°. If g=9.81 m/s² and µ=0.2, what is the acceleration of the box? Round your answer to the nearest tenth.";
-        ArrayList<String> options = new ArrayList<>(List.of(new String[]{"4.5 m/s²", "3.2 m/s²", "8.0 m/s²", "1.3 m/s²"}));
-        String key = args[0].split("=")[1];
-
-        LLMRequest chatgpt = new LLMRequest(key);
-        chatgpt.createPrompt(desc, options);
-
-        System.out.println(chatgpt.requestHint());
-        System.out.println(chatgpt.requestSubmission("3.2 m/s²"));
     }
 }
