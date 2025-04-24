@@ -21,14 +21,16 @@ public class LLMRequest {
 
     private final transient String API_KEY; // transient to prevent saving to external files
 
-    public LLMRequest(String desc, ArrayList<String> options, String API_KEY) {
+    public LLMRequest(String API_KEY) {
+        this.API_KEY = API_KEY;
+    }
+
+    public void createPrompt(String desc, ArrayList<String> options) {
         StringBuilder developerMessage = new StringBuilder();
         developerMessage.append("Pretend you're a physics tutor. The student is solving a physics problem, and is given the following prompt: ");
         developerMessage.append(String.format("\"%s\". ", desc));
         developerMessage.append(String.format("The student has the following options available to select from. Only one is the correct one: %s. ", options.toString()));
         this.developerMessage = developerMessage;
-
-        this.API_KEY = API_KEY;
     }
 
     public String requestHint() {
@@ -108,7 +110,8 @@ public class LLMRequest {
         ArrayList<String> options = new ArrayList<>(List.of(new String[]{"4.5 m/s²", "3.2 m/s²", "8.0 m/s²", "1.3 m/s²"}));
         String key = args[0].split("=")[1];
 
-        LLMRequest chatgpt = new LLMRequest(desc, options, key);
+        LLMRequest chatgpt = new LLMRequest(key);
+        chatgpt.createPrompt(desc, options);
 
         System.out.println(chatgpt.requestHint());
         System.out.println(chatgpt.requestSubmission("3.2 m/s²"));

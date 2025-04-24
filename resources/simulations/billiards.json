@@ -1,0 +1,69 @@
+{
+  "name": "Billiards",
+  "description": "A billiard ball of mass 170 g initially at rest, v1=(0, 0), is struck by a another billiard ball of the same mass travelling at a velocity of v2=(3, 2) m/s. If the collision is perfectly elastic, what is the subsequent velocity v1 of the ball which was initially at rest after the collision? Round your answer.",
+  "solutionOptions": [
+    "v1 = (3, 2) m/s",
+    "v1 = (6, 4) m/s",
+    "v1 = (2, -3) m/s",
+    "v1 = (-3, -2) m/s"
+  ],
+  "simulationTime": 2,
+  "zoom": 0.4,
+  "gravity": {
+    "x": 0.0,
+    "y": 0.0
+  },
+  "bgColor": {
+    "r": 0.153,
+    "g": 0.466,
+    "b": 0.0784
+  },
+  "physicsObjects": [
+    {
+      "shape": "circle",
+      "bodyType": "DYNAMIC",
+      "density": 1,
+      "friction": 0.2,
+      "rotation": 0,
+      "restitution": 1,
+      "radius": 0.068,
+      "position": {
+        "x": 0,
+        "y": -1.0
+      },
+      "initial_velocity": {
+        "x": 3.0,
+        "y": 2.0
+      },
+      "render_z": 0.5,
+      "color": {
+        "r": 1,
+        "g": 0,
+        "b": 0
+      }
+    },
+    {
+      "shape": "circle",
+      "bodyType": "DYNAMIC",
+      "density": 1,
+      "friction": 0.2,
+      "rotation": 0,
+      "restitution": 1,
+      "radius": 0.068,
+      "position": {
+        "x": 1.5,
+        "y": 0
+      },
+      "initial_velocity": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "render_z": 0.5,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 1
+      }
+    }
+  ]
+}

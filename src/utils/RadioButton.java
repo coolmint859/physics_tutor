@@ -2,10 +2,12 @@ package utils;
 
 import assets.ColorAssets;
 import edu.usu.graphics.Color;
+import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
 import edu.usu.graphics.objects.Clickable;
 import edu.usu.graphics.objects.Text;
 import edu.usu.graphics.objects.Triangle;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -58,9 +60,16 @@ public class RadioButton implements Clickable {
         this.renderSelect = false;
     }
 
+    public void setCenter(Vector2f center) {
+        this.buttonText.setCenter(new Vector3f(center.x, center.y, this.buttonText.getCenter().z));
+    }
+
+    public void setFont(Font font) {
+        this.buttonText.setFont(font);
+    }
+
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-
         return this.buttonText.isMouseOver(mouseX, mouseY);
     }
 

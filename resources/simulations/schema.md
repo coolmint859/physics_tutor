@@ -32,7 +32,7 @@ The simulation data files store information about individual simulations. Here a
     most objects will fill the screen if zoom=1. In practice, most zoom values will be fairly small (between 0.01 and 0.1).
   - The zoom is always relative to the origin, which is at the center of the screen.
 - physicsObjects: a list of objects in the physics world. A physics object has the following required properties:
-  - type (String): the type of object (rect, circle, triangle, polygon)
+  - shape (String): the shape of the object (rectangle, circle, triangle, polygon)
   - bodyType (BodyType): defines how the physics engine treats the object, must be in all caps (DYNAMIC, STATIC, KINEMATIC).
   - position (Vector2f): the position of the object (it's center), in meters
   - density (float): the density of the object in kg/m^2

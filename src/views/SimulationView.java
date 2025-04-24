@@ -20,9 +20,11 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class SimulationView implements StateView {
     private final Graphics2D graphics;
+    private final float aspectRatio;
     private final SoundAssets audio;
 
     private Simulation currentSimulation;
+    private ArrayList<String> simDescription;
     private ArrayList<PhysicsObject2D> physObjects;
     private ArrayList<RadioButton> solutionOptionsText;
     private boolean playSim;
@@ -33,7 +35,7 @@ public class SimulationView implements StateView {
     private String submissionResponse = "Loading...";
     private DescriptionPanel hintPanel;
     private DescriptionPanel submitPanel;
-    private Text descPanelCloseButton;
+    private Text responseCloseButton;
 
     private boolean renderHint;
     private boolean renderSubmitResponse;
@@ -49,51 +51,85 @@ public class SimulationView implements StateView {
     private final float HUDpanelWidth = 0.6f;
     private Rectangle HUDPanel;
     private Rectangle simPanel;
+    private InfoPanel descTextPanel;
 
     private StateEnum nextState;
 
+    Texture cannon;
+    Rectangle cannonRect;
+
     public SimulationView(Graphics2D graphics, SoundAssets audio, Simulation defaultSim, String LLM_API_KEY) {
         this.graphics = graphics;
+        this.aspectRatio = (float) graphics.getHeight()/graphics.getWidth();
         this.audio = audio;
 
         this.currentSimulation = defaultSim;
 
-        this.chatgpt = new LLMRequest(this.currentSimulation.description, this.currentSimulation.solutionOptions, LLM_API_KEY);
+        this.chatgpt = new LLMRequest(LLM_API_KEY);
     }
 
     @Override
     public void initialize() {
         nextState = StateEnum.Simulation;
 
-        this.descPanelCloseButton = new Text(new Vector3f(), "CLOSE", FontAssets.robotoReg, 0.05f, ColorAssets.menuTextColor);
+        // this is a kinda poor way of doing this. Ideally, you could specify in the simulation schema "virtual" objects that should
+        // just be rendered, but not actually used by the physics engine. This way they don't actually interact with anything.
+        // maybe in the future I'll add that ability.
+        this.cannon = new Texture("./resources/images/cannon.png");
+        this.cannonRect = new Rectangle(-0.29f, -0.045f, 0.055f, 0.055f, 1.0f);
 
-        this.hintPanel = new DescriptionPanel(new Vector2f(), this.hint, 0.04f, descPanelCloseButton, InfoPanel.TextAlignment.CENTERED);
+        float descTextHeight = 0.04f;
+        float buttonTextHeight = 0.06f;
+
+        this.simDescription = splitDescription();
+        float descPanelCenterX = -1.0f + HUDpanelWidth /2;
+        float descPanelCenterY = -aspectRatio + (simDescription.size() * descTextHeight)/2 + buttonTextHeight * 1.5f;
+        Vector2f descPanelCenter = new Vector2f(descPanelCenterX, descPanelCenterY);
+
+        float optionTextInitCenterY = descPanelCenterY + (simDescription.size() * descTextHeight)/2 + descTextHeight/2 + 0.02f;
+        float optionTextLeftAlignment = -0.95f;
+
+        this.solutionOptionsText = new ArrayList<>();
+        for (int i = 0; i < this.currentSimulation.solutionOptions.size(); i++) {
+            String option = this.currentSimulation.solutionOptions.get(i);
+            float optionLength = FontAssets.robotoReg.measureTextWidth(option, descTextHeight);
+
+            float optionTextCenterX = optionTextLeftAlignment + optionLength/2 + 0.022f;
+            float optionTextCenterY = optionTextInitCenterY + (2 * i * descTextHeight/2);
+            Vector3f optionTextCenter = new Vector3f(optionTextCenterX, optionTextCenterY, RenderOrders.TEXT1_z);
+
+            Text text = new Text(optionTextCenter, option, FontAssets.robotoReg, 0.04f, ColorAssets.simStaticTextColor);
+            solutionOptionsText.add(new RadioButton(text));
+        }
+        this.currentSelectedOption = "";
+
+        this.descTextPanel = new InfoPanel(
+                descPanelCenter, this.simDescription, InfoPanel.TextAlignment.LEFT,
+                Color.BLACK, descTextHeight, 0.0f
+        );
+
+        this.chatgpt.createPrompt(this.currentSimulation.description, this.currentSimulation.solutionOptions);
+        this.physObjects = this.currentSimulation.create();
+        this.playSim = false;
+
+        this.responseCloseButton = new Text(new Vector3f(), "CLOSE", FontAssets.robotoReg, 0.05f, ColorAssets.menuTextColor);
+
+        this.hintPanel = new DescriptionPanel(new Vector2f(), this.hint, 0.04f, responseCloseButton, InfoPanel.TextAlignment.CENTERED);
         this.hintPanel.setTexture(new Texture("./resources/images/simplebg.png"), 0.025f, RenderOrders.HUD2_z);
-        this.submitPanel = new DescriptionPanel(new Vector2f(), this.submissionResponse, 0.04f, descPanelCloseButton, InfoPanel.TextAlignment.CENTERED);
+        this.submitPanel = new DescriptionPanel(new Vector2f(), this.submissionResponse, 0.04f, responseCloseButton, InfoPanel.TextAlignment.CENTERED);
         this.submitPanel.setTexture(new Texture("./resources/images/simplebg.png"), 0.025f, RenderOrders.HUD2_z);
         this.renderHint = false;
         this.renderSubmitResponse = false;
-
-        this.physObjects = this.currentSimulation.create();
-        this.playSim = false;
 
         float aspectRatio = (float) this.graphics.getHeight() / this.graphics.getWidth();
         this.HUDPanel = new Rectangle(-1.0f, -aspectRatio, HUDpanelWidth, 2*aspectRatio, RenderOrders.HUD1_z);
         this.simPanel = new Rectangle(-1.0f, aspectRatio - 0.1f, HUDpanelWidth, 0.1f, RenderOrders.HUD2_z);
 
-        this.solutionOptionsText = new ArrayList<>();
-        for (int i = 0; i < this.currentSimulation.solutionOptions.size(); i++) {
-            String option = this.currentSimulation.solutionOptions.get(i);
-            Text text = new Text(new Vector3f(-0.85f, -0.2f + 0.05f*i, 1.0f), option, FontAssets.robotoReg_OL, 0.04f, ColorAssets.simStaticTextColor);
-            solutionOptionsText.add(new RadioButton(text));
-        }
-        this.currentSelectedOption = "";
-
-        this.escapeButton = new Text(new Vector3f(-0.85f, -0.5125f, 1.0f), "BACK (ESC)", FontAssets.robotoReg_OL, 0.06f, ColorAssets.menuEscapeColor);
-        this.playPauseButton = new Text(new Vector3f(-0.85f, 0.52f, 1.0f), "PLAY", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor2);
-        this.resetSimButton = new Text(new Vector3f(-0.55f, 0.52f, 1.0f), "RESET", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor2);
-        this.hintButton = new Text(new Vector3f(-0.85f, 0.42f, 1.0f), "HINT", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor1);
-        this.submitButton = new Text(new Vector3f(-0.55f, 0.42f, 1.0f), "SUBMIT", FontAssets.robotoReg_OL, 0.06f, ColorAssets.simButtonTextColor1);
+        this.escapeButton = new Text(new Vector3f(-0.85f, -0.5125f, RenderOrders.TEXT2_z), "BACK (ESC)", FontAssets.robotoReg_OL, buttonTextHeight, ColorAssets.menuEscapeColor);
+        this.playPauseButton = new Text(new Vector3f(-0.85f, 0.52f, RenderOrders.TEXT2_z), "PLAY", FontAssets.robotoReg_OL, buttonTextHeight, ColorAssets.simButtonTextColor2);
+        this.resetSimButton = new Text(new Vector3f(-0.55f, 0.52f, RenderOrders.TEXT2_z), "RESET", FontAssets.robotoReg_OL, buttonTextHeight, ColorAssets.simButtonTextColor2);
+        this.hintButton = new Text(new Vector3f(-0.85f, 0.42f, RenderOrders.TEXT2_z), "HINT", FontAssets.robotoReg_OL, buttonTextHeight, ColorAssets.simButtonTextColor1);
+        this.submitButton = new Text(new Vector3f(-0.55f, 0.42f, RenderOrders.TEXT2_z), "SUBMIT", FontAssets.robotoReg_OL, buttonTextHeight, ColorAssets.simButtonTextColor1);
 
         registerKeyboardCommands();
         registerCursorCommands();
@@ -189,25 +225,27 @@ public class SimulationView implements StateView {
         });
 
         // commands for the hint close button (only displayed if the student requested a hint/ or submitted a response)
-        cursor.addHoverListener(descPanelCloseButton, true, (double elapsedTime, double x, double y) -> {
-            descPanelCloseButton.setColor(ColorAssets.menuSelectedColor);
+        cursor.addHoverListener(responseCloseButton, true, (double elapsedTime, double x, double y) -> {
+            responseCloseButton.setColor(ColorAssets.menuSelectedColor);
             cursor.setCursorType(GLFW_HAND_CURSOR);
         });
-        cursor.addExitListener(descPanelCloseButton, (double elapsedTime, double x, double y) -> {
-            descPanelCloseButton.setColor(ColorAssets.menuTextColor);
+        cursor.addExitListener(responseCloseButton, (double elapsedTime, double x, double y) -> {
+            responseCloseButton.setColor(ColorAssets.menuTextColor);
             cursor.setCursorType(GLFW_ARROW_CURSOR);
         });
-        cursor.addLeftClickListener(descPanelCloseButton, true, (double elapsedTime, double x, double y) -> {
+        cursor.addLeftClickListener(responseCloseButton, true, (double elapsedTime, double x, double y) -> {
             this.renderHint = false;
             this.renderSubmitResponse = false;
         });
 
         for (RadioButton button: this.solutionOptionsText) {
             cursor.addHoverListener(button, true, (double elapsedTime, double x, double y) -> {
+                button.setFont(FontAssets.robotoBold);
                 button.hoverOver();
                 cursor.setCursorType(GLFW_HAND_CURSOR);
             });
             cursor.addExitListener(button, (double elapsedTime, double x, double y) -> {
+                button.setFont(FontAssets.robotoReg);
                 button.exitHover();
                 cursor.setCursorType(GLFW_ARROW_CURSOR);
             });
@@ -300,7 +338,12 @@ public class SimulationView implements StateView {
 
     @Override
     public void render(double elapsedTime) {
-        graphics.setClearColor(currentSimulation.bgColor);
+        graphics.setClearColor(this.currentSimulation.bgColor);
+
+        // Reiterating what was said above, ideally in the simulation schema you could specify objects that are
+        // just rendered, and don't interact with the physics engine. That way checks like these aren't needed.
+        if (this.currentSimulation.name.equals("Cannon Ball"))
+            graphics.draw(cannon, cannonRect, Color.WHITE);
 
         graphics.draw(HUDPanel, ColorAssets.HUDColor1);
         graphics.draw(simPanel, ColorAssets.HUDColor2);
@@ -318,11 +361,8 @@ public class SimulationView implements StateView {
             obj.render(graphics, elapsedTime);
         }
 
-        InfoPanel panel = new InfoPanel(
-                new Vector2f(-1.0f + HUDpanelWidth /2, -0.35f), splitDescription(), InfoPanel.TextAlignment.LEFT,
-                Color.BLACK, 0.04f, 0.0f
-        );
-        panel.render(graphics, FontAssets.robotoReg, RenderOrders.HUD2_z, RenderOrders.TEXT1_z);
+
+        this.descTextPanel.render(graphics, FontAssets.robotoReg, RenderOrders.HUD2_z, RenderOrders.TEXT1_z);
 
         for (RadioButton button : this.solutionOptionsText) {
             button.render(graphics, RenderOrders.HUD2_z);

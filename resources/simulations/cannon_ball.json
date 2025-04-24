@@ -1,0 +1,70 @@
+{
+  "name": "Cannon Ball",
+  "description": "A cannon shoots a cannon ball at a velocity of v = (40, 25) m/s. Let g=9.81 m/s² If the cannon is at the origin, how far will the ball travel before hitting the ground? Round your answer to the nearest ten.",
+  "solutionOptions": [
+    "60 m",
+    "200 m",
+    "100 m",
+    "20 m"
+  ],
+  "simulationTime": 7,
+  "zoom": 0.005,
+  "gravity": {
+    "x": 0.0,
+    "y": -9.81
+  },
+  "bgColor": {
+    "r": 0.529,
+    "g": 0.808,
+    "b": 0.921
+  },
+  "physicsObjects": [
+    {
+      "shape": "rectangle",
+      "bodyType": "STATIC",
+      "density": 10,
+      "friction": 0.99,
+      "rotation": 0,
+      "restitution": 0,
+      "width": 350,
+      "height": 112.5,
+      "initial_velocity": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "position": {
+        "x": 50,
+        "y": -56.25
+      },
+      "render_z": 0.5,
+      "color": {
+        "r": 0.545,
+        "g": 0.271,
+        "b": 0.075
+      }
+    },
+    {
+      "shape": "circle",
+      "bodyType": "DYNAMIC",
+      "density": 30,
+      "friction": 0.99,
+      "restitution": 0.2,
+      "rotation": 0,
+      "radius": 1,
+      "initial_velocity": {
+        "x": 40,
+        "y": 25
+      },
+      "position": {
+        "x": -50,
+        "y": 7
+      },
+      "render_z": 0.8,
+      "color": {
+        "r": 0.2,
+        "g": 0.2,
+        "b": 0.2
+      }
+    }
+  ]
+}

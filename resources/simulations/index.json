@@ -1,5 +1,7 @@
 {
   "paths": [
-    "./resources/simulations/box_wedge.json"
+    "./resources/simulations/cannon_ball.json",
+    "./resources/simulations/box_wedge.json",
+    "./resources/simulations/billiards.json"
   ]
 }

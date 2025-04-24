@@ -26,16 +26,16 @@ public class Simulation {
         this.world = new PhysicsWorld(gravity, this.zoom);
         this.timeElapsedSinceStart = 0;
 
-        ArrayList<PhysicsObject2D> objects = new ArrayList<>();
+        ArrayList<PhysicsObject2D> physObjects = new ArrayList<>();
         for (ObjectData data : this.physicsObjects) {
-            switch (data.type) {
-                case "rectangle" -> objects.add(createRectangle(data, world));
-                case "polygon" -> objects.add(createPolygon(data, world));
-                case "triangle" -> objects.add(createTriangle(data, world));
-                case "circle" -> objects.add(createCircle(data, world));
+            switch (data.shape) {
+                case "rectangle" -> physObjects.add(createPhysRectangle(data, world));
+                case "polygon" -> physObjects.add(createPhysPolygon(data, world));
+                case "triangle" -> physObjects.add(createPhysTriangle(data, world));
+                case "circle" -> physObjects.add(createPhysCircle(data, world));
             }
         }
-        return objects;
+        return physObjects;
     }
 
     public void stepForward(double elapsedTime, int iterations) {
@@ -49,7 +49,7 @@ public class Simulation {
         return this.timeElapsedSinceStart >= simulationTime;
     }
 
-    private Rect createRectangle(ObjectData data, PhysicsWorld world) {
+    private Rect createPhysRectangle(ObjectData data, PhysicsWorld world) {
         float rotation = -data.rotation * (float) Math.PI / 180f;
         if (data.texture.isEmpty()) {
             return new Rect(
@@ -65,7 +65,7 @@ public class Simulation {
         }
     }
 
-    private Circle createCircle(ObjectData data, PhysicsWorld world) {
+    private Circle createPhysCircle(ObjectData data, PhysicsWorld world) {
         float rotation = -data.rotation * (float) Math.PI / 180f;
         return new Circle(
                 world, data.color, data.position, data.radius, data.render_z, rotation,
@@ -73,7 +73,7 @@ public class Simulation {
         );
     }
 
-    private Triangle createTriangle(ObjectData data, PhysicsWorld world) {
+    private Triangle createPhysTriangle(ObjectData data, PhysicsWorld world) {
         float rotation = -data.rotation * (float) Math.PI / 180f;
         return new Triangle(
                 world, data.vertices.get(0), data.vertices.get(1), data.vertices.get(2), data.color,
@@ -81,7 +81,7 @@ public class Simulation {
         );
     }
 
-    private Polygon createPolygon(ObjectData data, PhysicsWorld world) {
+    private Polygon createPhysPolygon(ObjectData data, PhysicsWorld world) {
         float rotation = -data.rotation * (float) Math.PI / 180f;
         return new Polygon(
                 world, data.vertices, data.color, data.render_z, rotation, data.initial_velocity,
@@ -90,7 +90,7 @@ public class Simulation {
     }
 
     public static class ObjectData {
-        String type;
+        String shape;
         BodyType bodyType;
         float density;
         float friction;

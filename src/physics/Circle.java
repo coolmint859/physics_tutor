@@ -55,7 +55,7 @@ public class Circle implements PhysicsObject2D {
 
         // create shape
         CircleShape circle = new CircleShape();
-        circle.m_radius = world.scalarCanvasToWorld(radius);
+        circle.m_radius = radius;
 
         // create fixture
         FixtureDef fx = new FixtureDef();
@@ -110,7 +110,7 @@ public class Circle implements PhysicsObject2D {
     @Override
     public void render(Graphics2D graphics, double elapsedTime) {
         // convert the center and radius for the graphics API
-        Vector2f centerCanvas2f = this.world.worldCoordsToCanvas(new Vec2(this.center.x, -this.center.y));
+        Vector2f centerCanvas2f = this.world.worldCoordsToCanvas(new Vec2(this.center.x, this.center.y));
         Vector3f centerCanvas3f = new Vector3f(centerCanvas2f.x, centerCanvas2f.y, renderOrder);
         float canvasRadius = this.world.scalarWorldToCanvas(this.radius);
 

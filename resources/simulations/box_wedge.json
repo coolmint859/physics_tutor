@@ -1,5 +1,5 @@
 {
-  "name": "Forces - Box On Wedge",
+  "name": "Box On a Wedge",
   "description": "A box of mass 10 kg sits on a ramp at an incline of 30\u00b0. If g=9.81 m/s\u00B2 and \u00b5=0.2, what is the acceleration of the box? Round your answer to the nearest tenth.",
   "solutionOptions": [
     "4.5 m/s²",
@@ -20,7 +20,7 @@
   },
   "physicsObjects": [
     {
-      "type": "triangle",
+      "shape": "triangle",
       "bodyType": "STATIC",
       "density": 10,
       "friction": 0.2,
@@ -52,7 +52,7 @@
       }
     },
     {
-      "type": "rectangle",
+      "shape": "rectangle",
       "bodyType": "DYNAMIC",
       "density": 100,
       "friction": 0.2,
@@ -76,7 +76,7 @@
       }
     },
     {
-      "type": "rectangle",
+      "shape": "rectangle",
       "bodyType": "STATIC",
       "density": 10,
       "friction": 0.8,
